@@ -6,12 +6,14 @@ async def start(update: Update, context: CallbackContext):
     await update.message.reply_text("Отправьте мне видео, и я преобразую его в видеокружок.")
 
 async def process_video(update: Update, context: CallbackContext):
-    update.message.reply_text("Видео получил, начинаю закруглять, подожди плз)")
+    # Отправка сообщения о начале обработки
+    await update.message.reply_text("Видео получил, начинаю закруглять, подожди плз.")
+    
     video_file = await context.bot.getFile(update.message.video.file_id)
-    await video_file.download_to_drive(f"input_video_{update.message.video.file_id}.mp4")
+    await video_file.download_to_drive(f"videos/input_video_{update.message.video.file_id}.mp4")
 
     # Prеобразование видео в видеокружок
-    input_video = VideoFileClip(f"input_video_{update.message.video.file_id}.mp4")
+    input_video = VideoFileClip(f"videos/input_video_{update.message.video.file_id}.mp4")
     w, h = input_video.size
     circle_size = 360
     aspect_ratio = float(w) / float(h)
@@ -25,8 +27,8 @@ async def process_video(update: Update, context: CallbackContext):
         
     resized_video = input_video.resize((new_w, new_h))
     output_video = resized_video.crop(x_center=resized_video.w/2, y_center=resized_video.h/2, width=circle_size, height=circle_size)
-    output_video.write_videofile(f"output_video_{update.message.video.file_id}.mp4", codec="libx264", audio_codec="aac", bitrate="5M")
+    output_video.write_videofile(f"videos/output_video_{update.message.video.file_id}.mp4", codec="libx264", audio_codec="aac", bitrate="5M")
 
     # Отправка видеокружка в чат
-    with open(f"output_video_{update.message.video.file_id}.mp4", "rb") as video:
+    with open(f"videos/output_video_{update.message.video.file_id}.mp4", "rb") as video:
         await context.bot.send_video_note(chat_id=update.message.chat_id, video_note=video, duration=int(output_video.duration), length=circle_size)
