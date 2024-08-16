@@ -6,6 +6,7 @@ async def start(update: Update, context: CallbackContext):
     await update.message.reply_text("Отправьте мне видео, и я преобразую его в видеокружок.")
 
 async def process_video(update: Update, context: CallbackContext):
+    update.message.reply_text("Видео получил, начинаю закруглять, подожди плз)")
     video_file = await context.bot.getFile(update.message.video.file_id)
     await video_file.download_to_drive("input_video.mp4")
 
