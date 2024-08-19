@@ -7,28 +7,31 @@ async def start(update: Update, context: CallbackContext):
 
 async def process_video(update: Update, context: CallbackContext):
     # Отправка сообщения о начале обработки
-    await update.message.reply_text("Видео получил, начинаю закруглять, подожди плз.")
-    
-    video_file = await context.bot.getFile(update.message.video.file_id)
-    await video_file.download_to_drive(f"videos/input_video_{update.message.video.file_id}.mp4")
+    await update.message.reply_text("Видео получил, начинаю закруглять, подожди, плз.")
 
-    # Prеобразование видео в видеокружок
-    input_video = VideoFileClip(f"videos/input_video_{update.message.video.file_id}.mp4")
-    w, h = input_video.size
-    circle_size = 360
-    aspect_ratio = float(w) / float(h)
+    try:
+        video_file = await context.bot.getFile(update.message.video.file_id)
+        await video_file.download_to_drive(f"videos/input_video_{update.message.video.file_id}.mp4")
     
-    if w > h:
-        new_w = int(circle_size * aspect_ratio)
-        new_h = circle_size
-    else:
-        new_w = circle_size
-        new_h = int(circle_size / aspect_ratio)
+        # Prеобразование видео в видеокружок
+        input_video = VideoFileClip(f"videos/input_video_{update.message.video.file_id}.mp4")
+        w, h = input_video.size
+        circle_size = 360
+        aspect_ratio = float(w) / float(h)
         
-    resized_video = input_video.resize((new_w, new_h))
-    output_video = resized_video.crop(x_center=resized_video.w/2, y_center=resized_video.h/2, width=circle_size, height=circle_size)
-    output_video.write_videofile(f"videos/output_video_{update.message.video.file_id}.mp4", codec="libx264", audio_codec="aac", bitrate="5M")
-
-    # Отправка видеокружка в чат
-    with open(f"videos/output_video_{update.message.video.file_id}.mp4", "rb") as video:
-        await context.bot.send_video_note(chat_id=update.message.chat_id, video_note=video, duration=int(output_video.duration), length=circle_size)
+        if w > h:
+            new_w = int(circle_size * aspect_ratio)
+            new_h = circle_size
+        else:
+            new_w = circle_size
+            new_h = int(circle_size / aspect_ratio)
+            
+        resized_video = input_video.resize((new_w, new_h))
+        output_video = resized_video.crop(x_center=resized_video.w/2, y_center=resized_video.h/2, width=circle_size, height=circle_size)
+        output_video.write_videofile(f"videos/output_video_{update.message.video.file_id}.mp4", codec="libx264", audio_codec="aac", bitrate="5M")
+    
+        # Отправка видеокружка в чат
+        with open(f"videos/output_video_{update.message.video.file_id}.mp4", "rb") as video:
+            await context.bot.send_video_note(chat_id=update.message.chat_id, video_note=video, duration=int(output_video.duration), length=circle_size)
+    except Exception as err:
+        await update.message.reply_text(f"err: {err}.")
