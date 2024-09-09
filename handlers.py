@@ -28,7 +28,16 @@ async def process_video(update: Update, context: CallbackContext):
             
         resized_video = input_video.resize((new_w, new_h))
         output_video = resized_video.crop(x_center=resized_video.w/2, y_center=resized_video.h/2, width=circle_size, height=circle_size)
-        output_video.write_videofile(f"videos/output_video_{update.message.video.file_id}.mp4", codec="libx264", audio_codec="aac", bitrate="5M")
+        # Уменьшение битрейта и разрешения для уменьшения размера файла
+        output_video.write_videofile(
+            f"videos/output_video_{update.message.video.file_id}.mp4", 
+            codec="libx264", 
+            audio_codec="aac", 
+            bitrate="1М",  # Уменьшаем битрейт
+            audio_bitrate="64k",  # Уменьшаем аудиобитрейт
+            fps=24,  # Можно снизить FPS для уменьшения размера
+            preset="ultrafast"  # Быстрое сжатие
+        )
     
         # Отправка видеокружка в чат
         with open(f"videos/output_video_{update.message.video.file_id}.mp4", "rb") as video:
