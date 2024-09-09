@@ -33,7 +33,7 @@ async def process_video(update: Update, context: CallbackContext):
             f"videos/output_video_{update.message.video.file_id}.mp4", 
             codec="libx264", 
             audio_codec="aac", 
-            bitrate="1М",  # Уменьшаем битрейт
+            bitrate="1M",  # Уменьшаем битрейт
             audio_bitrate="64k",  # Уменьшаем аудиобитрейт
             fps=24,  # Можно снизить FPS для уменьшения размера
             preset="ultrafast"  # Быстрое сжатие
